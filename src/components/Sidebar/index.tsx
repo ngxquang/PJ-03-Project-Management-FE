@@ -7,11 +7,13 @@ import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import Link from "next/link"
 import { setIsSidebarCollapsed } from "@/state";
+import { useGetProjectsQuery } from "@/state/api";
 
 const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(true);
   const [showPriority, setShowPriority] = useState(true);
 
+  const { data: projects } = useGetProjectsQuery();
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed,
@@ -71,7 +73,13 @@ const Sidebar = () => {
             )}
         </button>
         {/* Project List */}
-
+        { showProjects && projects?.map((project) => (
+          <SidebarLink 
+            key={project.id}
+            icon={Briefcase}
+            label={project.name}
+            href={`/projects/${project.id}`}/>
+        ))}
 
         {/* Priority Links */}
         <button onClick={() => setShowPriority((prev) => !prev)}
