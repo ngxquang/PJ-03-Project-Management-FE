@@ -3,8 +3,10 @@ import React from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/state/api";
-import { EllipsisVertical, Image, Plus } from "lucide-react";
+import { EllipsisVertical, MessageSquareMore, Plus, Tag } from "lucide-react";
 import { format } from "date-fns";
+import Image from "next/image";
+
 
 type BoardProps = {
   id: string;
@@ -16,7 +18,6 @@ const taskStatus = [
   "Work In Progress",
   "Under Review",
   "Completed",
-  "Archived",
 ];
 
 const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
@@ -31,6 +32,9 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
   const moveTask = (taskId: number, toStatus: string) => {
     updateTaskStatus({ taskId, status: toStatus });
   };
+
+  console.log("Tasks:::", tasks);
+
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>An error occured while loading tasks</div>;
@@ -80,8 +84,9 @@ const TaskColumn = ({
     "Work In Progress": "#059669",
     "Under Review": "#D97706",
     Completed: "#000000",
-    Archived: "#151526",
   };
+
+  console.log("status:::", status);
 
   return (
     <div
@@ -118,9 +123,9 @@ const TaskColumn = ({
           </div>
         </div>
       </div>
-      {tasks.filter((task) => {
-        task.status === status
-      }).map((task) => (
+      {tasks
+        .filter((task) => task.status === status)
+        .map((task) => (
         <Task key={task.id} task={task} />
       ))}
     </div>
@@ -132,7 +137,7 @@ type TaskProps = {
 };
 
 const Task = ({ task }: TaskProps) => {
-  const [{ isDragging }, drop] = useDrag(() => ({
+  const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
     item: { id: task.id },
     collect: (monitor: any) => ({
@@ -151,7 +156,7 @@ const Task = ({ task }: TaskProps) => {
 
     const numberOfComments = (task.comments && task.comments.length) || 0;
     
-    const PriorityTag = ({ priority } : { priority: TaskType["priority"] }) => {
+    const PriorityTag = ({ priority } : { priority: TaskType["priority"] }) => (
       <div className={`rounded-full px-2 py-1 text-xs font-semibold ${
         priority === "Urgent" ? "bg-red-200 text-red-700" :
         priority === "High" ? "bg-yellow-200 text-yellow-700" :
@@ -161,7 +166,9 @@ const Task = ({ task }: TaskProps) => {
       }`}>
         {priority}
       </div>
-    };
+    );
+
+    console.log("task priority:::", task.priority);
 
     return (
       <div ref={(instance) => {
@@ -176,14 +183,81 @@ const Task = ({ task }: TaskProps) => {
               src={`/${task.attachments[0].fileURL}`}
               alt={task.attachments[0].fileName}
               width={400}
-              hieght={200}
+              height={200}
               className="h-auto w-full rounded-t-md"
             />
           )}
+
+          {/* {Thẻ div cho từng task} */}
           <div className="p-4 md:p-6">
             <div className="flex items-start justify-between">
               <div className="flex flex-1 flex-wrap items-center gap-2">
                 {task.priority && <PriorityTag priority={task.priority}/>}
+                <div className="flex gap-2">
+                  {taskTagsSplit.map((tag) => (
+                    <div>
+                      {" "}
+                      {tag}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <button className="flex h-6 w-4 flex-shrink-0 items-center justify-center dark:text-neutral-500">
+                  <EllipsisVertical size={26} />
+              </button>
+            </div>
+
+            {/* {task title & points - Nằm 2 bên trái phải của thẻ div} */}
+            <div className="my-3 flex justify-between">
+                  <h4 className="text-md font-bold dark:text-white">{task.title}</h4>
+                    {typeof task.points === "number" && (
+                      <div className="text-xs font-semibold dark:text-white">
+                        {task.points} pts
+                      </div>
+                    )}
+            </div>
+
+            {/* {start date and due date} */}
+            <div>
+              { formattedStartDate && <span>{ formattedStartDate } - </span> }
+              { formattedDueDate && <span>{ formattedDueDate } </span> }
+            </div>
+            <p className="text-sm text-gray-600 dark:text-neutral-500">
+                    {task.description}
+            </p>
+
+            {/* {Đường kẻ ngang ngăn cách giữa phần chi tiết task với Users} */}
+            <div className="mt-4 border-t border-gray-200 dark:border-stroke-dark"/>
+
+            {/* {Users} */}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex -space-x-[6px] overflow-hidden">
+                    {task.assignee && (
+                      <Image
+                        key={task.assignee.userId} 
+                        src={`/${task.assignee.profilePictureUrl!}`}
+                        alt={task.assignee.username}
+                        width={30}
+                        height={30}
+                        className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
+                      />
+                    )}
+                    {task.author && (
+                      <Image
+                        key={task.author.userId} 
+                        src={`/${task.author.profilePictureUrl!}`}
+                        alt={task.author.username}
+                        width={30}
+                        height={30}
+                        className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
+                      />
+                    )}
+              </div>
+              <div className="flex items-center text-gray-500 dark:text-neutral-500">
+                    <MessageSquareMore size={20}/>
+                    <span className="ml-1 text-sm dark:text-neutral-400">
+                      {numberOfComments}
+                    </span>
               </div>
             </div>
           </div>
