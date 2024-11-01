@@ -67,6 +67,13 @@ export interface SearchResults {
   users?: User[]
 }
 
+export interface Team {
+  teamId: number,
+  teamName: string,
+  productOwnerUserId?: number,
+  projectManagerUserId?: number,
+}
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL}),
@@ -98,7 +105,7 @@ export const api = createApi({
 
     getTasksByUser: build.query<Task[], number>({
       query: (userId) => `tasks/user/${userId}`,
-      providesTags: (result, error, userId) =>
+      providesTags: (result, error, userId) => 
         result
           ? result.map(({ id }) => ({ type: "Tasks", id }))
           : [{ type: "Tasks", id: userId }],
@@ -124,6 +131,16 @@ export const api = createApi({
       ],
     }),
 
+    getUsers: build.query<User[], void>({
+      query: () => "users",
+      providesTags: ["Users"]
+    }),
+
+    getTeams: build.query<Team[], void>({
+      query: () => `teams`,
+      providesTags: ["Teams"]
+    }),
+
     search: build.query<SearchResults, string>({
       query: (query) => `search?query=${query}`
     })
@@ -137,5 +154,7 @@ export const {
   useCreateTaskMutation,
   useUpdateTaskStatusMutation,
   useGetTasksByUserQuery,
+  useGetUsersQuery,
+  useGetTeamsQuery,
   useSearchQuery
 } = api;
