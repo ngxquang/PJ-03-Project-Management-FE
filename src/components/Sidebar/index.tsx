@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/app/redux";
-import { AlertCircle, AlertOctagon, AlertTriangle, Briefcase, ChevronDown, ChevronUp, Home, HomeIcon, Layers3, LockIcon, LucideIcon, Search, Settings, ShieldAlert, User, Users, X } from "lucide-react";
+import { AlertCircle, AlertOctagon, AlertTriangle, Briefcase, ChevronDown, ChevronUp, Home, Layers3, LockIcon, LucideIcon, Search, Settings, ShieldAlert, User, Users, X } from "lucide-react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";

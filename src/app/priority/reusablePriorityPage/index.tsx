@@ -76,7 +76,6 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   const {
     data: tasks,
     isLoading,
-    isError: isTasksError,
   } = useGetTasksByUserQuery(userId || 0, {
     skip: userId === null,
   });
